@@ -8,8 +8,9 @@ class CategoryController extends Controller
 {
     private function index(Request $request)
     {
-
-    }
+        return response()->json([
+            'data' => $request->all()
+        ]);    }
 
     private function store(Request $request,)
     {
