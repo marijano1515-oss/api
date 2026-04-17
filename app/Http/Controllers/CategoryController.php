@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Category;
 use Illuminate\Http\Request;
 
@@ -22,7 +21,7 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:categories',
         ]);
-        $category = CategoryController::create([
+        $category = Category::create([
             'name' => $request->name
         ]);
         return response()->json([
@@ -51,7 +50,10 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return response()->json($category);
+        return response()->json([
+            'category' => $category,
+            'message' => 'Category updated'
+        ]);
 
     }
 
@@ -60,18 +62,18 @@ class CategoryController extends Controller
 
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
         $user = auth()->user();
 
         if (!$user || !$user->is_admin) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        $category = Category::find($id);
-        if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
-        }
+
+        $category = Category::findOrFail($id);
         $category->delete();
-        return response()->json(['message' => 'Category deleted']);
+
+        return response()->json(['message' => 'Deleted successfully']);
+
     }
 }

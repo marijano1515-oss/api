@@ -9,10 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    public function casts()
-    {
-
-    }
     public function products()
     {
         return $this->hasMany(ProductController::class);
