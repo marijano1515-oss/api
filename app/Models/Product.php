@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['name','category','price','created_at','updated_at'])]
-#[Hidden(['user_id','category_id'])]
 
 class Product extends Model
 {
+    protected $fillable = ['name', 'price','category_id','user_id'];
+
+    protected $hidden = ['user_id', 'category_id'];
     public function category(){
 
         return $this->belongsTo(Category::class);

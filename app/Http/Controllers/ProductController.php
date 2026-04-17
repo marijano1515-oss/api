@@ -31,10 +31,15 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'required|integer'
         ]);
 
-        $product = Product::create($validated);
+        $product = Product::create([
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+            'category_id' => $request->category_id,
+            'user_id' => $request->user()->id
+        ]);
 
         return response()->json([
             'message' => 'Product created successfully',
@@ -68,7 +73,7 @@ class ProductController extends Controller
         return response()->json($product);
 
     }
-    public function delete(Request $request, $id)
+    public function destroy(Request $request, $id)
     {
         $user = auth()->user();
 
