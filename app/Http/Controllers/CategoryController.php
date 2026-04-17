@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    private function index(Request $request)
+    public function index(Request $request)
     {
         return response()->json(category::all());
     }
 
-    private function store(Request $request)
+    public function store(Request $request)
     {
         if (!auth()->user() || auth()->user()->is_admin != 1)  {
             return response()->json([
@@ -31,7 +31,7 @@ class CategoryController extends Controller
         ]);
     }
 
-    private function update(Request $request,$id)
+    public function update(Request $request,$id)
     {
         $user = auth()->user();
 
@@ -55,12 +55,12 @@ class CategoryController extends Controller
 
     }
 
-    private function show(Request $request)
+    public function show(Request $request)
     {
 
     }
 
-    private function delete($id)
+    public function delete($id)
     {
         $user = auth()->user();
 
