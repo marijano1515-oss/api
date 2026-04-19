@@ -2,81 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Orders;
+use App\Models\Orders; // Your model name
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-public function index()
-{
-
-}
-public function store(Request $request)
-{
-    $validated = $request->validate([
-    'items' => 'required|array',
-    'items.*.product_id' => 'required|exists:products,id',
-    'items.*.quantity' => 'required|integer|min:1',
-]);
-
-    return DB::transaction(function () use ($validated) {
-        // Create the base order
-        $order = Orders::create([
-            'user_id' => auth()->id() ?? 1,
-            'status' => 'pending',
-            'total_price' => 0,
+    public function store(Request $request)
+    {
+        // 1. Validate the input (The 'items' array)
+        $validated = $request->validate([
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
         ]);
 
-        $total = 0;
+        // 2. Use a transaction to ensure both tables update correctly
+        return DB::transaction(function () use ($validated) {
 
-        foreach ($validated['items'] as $item) {
-            $product = Product::findOrFail($item['product_id']);
-            $subtotal = $product->price * $item['quantity'];
-            $total += $subtotal;
-
-            // Save the relationship and the price at this moment
-            $order->products()->attach($product->id, [
-                'quantity' => $item['quantity'],
-                'price' => $product->price
+            // 3. Insert into 'orders' table
+            $order = Orders::create([
+                'user_id' => auth()->id() ?? 1,
+                'status' => 'pending',
+                'total_price' => 0,
             ]);
-        }
 
-        $order->update(['total_price' => $total]);
+            $total = 0;
 
-        return response()->json($order->load('products'), 201);
-    });
-}
-public function update(Request $request, $id)
-{
-    $order = Orders::findOrFail($id);
+            // 4. Loop through items to insert into 'order_items' table
+            foreach ($validated['items'] as $item) {
+                $product = Product::findOrFail($item['product_id']);
 
-    $validated = $request->validate([
-        'status' => 'required|in:pending,received,on road,canceled',
-        'total_price' => 'sometimes|numeric' // Only if you want to manually override
-    ]);
+                $subtotal = $product->price * $item['quantity'];
+                $total += $subtotal;
 
-    $order->update($validated);
+                // This is where the magic happens:
+                // Laravel takes the $order->id and inserts it into order_items automatically
+                $order->products()->attach($product->id, [
+                    'quantity' => $item['quantity'],
+                    'price' => $product->price // Snapshot of price
+                ]);
+            }
 
-    return response()->json([
-        'message' => 'Order updated successfully',
-        'order' => $order
-    ]);
-}
-public function destroy($id)
-{
-    $order = Orders::findOrFail($id);
+            // 5. Update the 'orders' table with the final math
+            $order->update(['total_price' => $total]);
 
-    // Optional: Prevent deletion if the order is already "on road"
-    if ($order->status === 'on road') {
-        return response()->json(['error' => 'Cannot delete an order that is already on the road'], 403);
+            // Return the order with its items for the response
+            return response()->json($order->load('products'), 201);
+        });
     }
 
-    $order->delete();
+    public function index()
+    {
+        // Shows orders and pulls details from order_items table
+        return response()->json(Orders::with('products')->get());
+    }
 
-    return response()->json([
-        'message' => 'Order deleted successfully'
-    ], 200);
-}
+    public function show($id)
+    {
+        return response()->json(Orders::with('products')->findOrFail($id));
+    }
 }
