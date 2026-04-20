@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
@@ -36,6 +37,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/order/{id}', [OrderController::class, 'destroy']);
     Route::get('/order/{id}', [OrderController::class, 'show']);
     Route::get('/order', [OrderController::class, 'index']);
+
+    Route::get('/favorites', [FavoritesController::class, 'index']);
+    Route::post('/favorites', [FavoritesController::class, 'store']);
+    Route::delete('/favorites/{id}', [FavoritesController::class, 'destroy']);
 });
 
 
