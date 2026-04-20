@@ -23,15 +23,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/category', [CategoryController::class, 'store']);
     Route::put('/category/{id}', [CategoryController::class, 'update']);
     Route::delete('/category/{id}', [CategoryController::class, 'destroy']);
+    Route::get('/category', [CategoryController::class, 'index']);
 
     Route::post('/product', [ProductController::class, 'store']);
     Route::put('/product/{id}', [ProductController::class, 'update']);
     Route::delete('/product/{id}', [ProductController::class, 'destroy']);
     Route::get('/product/{id}', [ProductController::class, 'show']);
+    Route::get('/product', [ProductController::class, 'index']);
 
     Route::post('/order', [OrderController::class, 'store']);
     Route::put('/order/{id}', [OrderController::class, 'update']);
     Route::delete('/order/{id}', [OrderController::class, 'destroy']);
+    Route::get('/order/{id}', [OrderController::class, 'show']);
+    Route::get('/order', [OrderController::class, 'index']);
 });
 
 

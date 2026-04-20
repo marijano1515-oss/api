@@ -45,22 +45,51 @@ class OrderController extends Controller
                 ]);
             }
 
-            // 5. Update the 'orders' table with the final math
-            $order->update(['total_price' => $total]);
 
-            // Return the order with its items for the response
-            return response()->json($order->load('products'), 201);
         });
     }
+    public function update(Request $request, $id)
+{
+    $order = Orders::findOrFail($id);
+
+    $validated = $request->validate([
+        'status' => 'required|in:pending,received,on road,canceled',
+    ]);
+
+    $order->update([
+        'status' => $validated['status']
+    ]);
+
+    return response()->json([
+        'message' => 'Order status updated successfully',
+        'order' => $order
+    ], 200);
+}
 
     public function index()
     {
-        // Shows orders and pulls details from order_items table
         return response()->json(Orders::with('products')->get());
     }
 
     public function show($id)
     {
         return response()->json(Orders::with('products')->findOrFail($id));
+    }
+    public function destroy($id)
+    {
+        $order = Orders::findOrFail($id);
+
+        if ($order->status === 'on road') {
+            return response()->json([
+                'error' => 'Cannot delete an order that is already on the road'
+            ], 403);
+        }
+
+
+        $order->delete();
+
+        return response()->json([
+            'message' => 'Order #'.$id.' has been deleted successfully'
+        ], 200);
     }
 }
