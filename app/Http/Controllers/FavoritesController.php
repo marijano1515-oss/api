@@ -25,10 +25,6 @@ class FavoritesController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         // check if product exists
         $product = Product::find($product_id);
 
