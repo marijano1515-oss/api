@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Orders extends Model
 {
@@ -32,11 +33,16 @@ class Orders extends Model
     {
         return $this->belongsToMany(
             Product::class,
-            'order_items', // The name of your pivot table
-            'order_id',    // The foreign key on order_items that points to this model
-            'product_id'   // The foreign key on order_items that points to Product
+            'order_items',
+            'order_id',
+            'product_id'
         )
-            ->withPivot('quantity', 'price') // Ensures these extra columns are accessible
+            ->withPivot('quantity', 'price')
             ->withTimestamps();
+    }
+    public function Items(): HasMany
+    {
+        return $this->hasMany(OrderItems::class, 'order_id'
+        );
     }
 }

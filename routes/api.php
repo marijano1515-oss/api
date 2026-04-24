@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\OrderController;
@@ -18,7 +19,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::post('/category', [CategoryController::class, 'store']);
@@ -41,6 +41,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favorites', [FavoritesController::class, 'index']);
     Route::post('/favorites/{id}', [FavoritesController::class, 'store']);
     Route::delete('/favorites/{id}', [FavoritesController::class, 'destroy']);
+
+    Route::get('/cart', [FavoritesController::class, 'index']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+    Route::put('/cart', [CartController::class, 'update`']);
+
 });
 
 
