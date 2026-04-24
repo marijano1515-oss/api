@@ -42,7 +42,7 @@ class Orders extends Model
     }
     public function Items(): HasMany
     {
-        return $this->hasMany(OrderItems::class, 'order_id'
+        return $this->hasMany(OrderItems::class, 'order_id','quantity'
         );
     }
 }

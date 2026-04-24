@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -42,10 +43,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/favorites/{id}', [FavoritesController::class, 'store']);
     Route::delete('/favorites/{id}', [FavoritesController::class, 'destroy']);
 
-    Route::get('/cart', [FavoritesController::class, 'index']);
-    Route::post('/cart', [CartController::class, 'store']);
+    Route::get('/cart{id}', [FavoritesController::class, 'index']);
+    Route::post('/cart/{id}', [CartController::class, 'store']);
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
-    Route::put('/cart', [CartController::class, 'update`']);
+    Route::put('/cart/{id}', [CartController::class, 'update`']);
+
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+    Route::get('/reviews/{id}', [ReviewController::class, 'index']);
+    Route::put('/reviews/{id}', [ReviewController::class, 'update']);
 
 });
 

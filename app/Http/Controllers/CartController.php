@@ -71,9 +71,6 @@ public function update(Request $request,$product_id)
 
     $cart = Cart::where('user_id', $user->id)->first();
 
-    if (!$cart) {
-        return response()->json(['message' => 'Cart not found'], 404);
-    }
 
     $item = CartItems::where('cart_id', $cart->id)
         ->where('product_id', $product_id)
@@ -83,7 +80,7 @@ public function update(Request $request,$product_id)
         return response()->json(['message' => 'Item not found'], 404);
     }
 
-    $item->update(['quantity' => $validated['quantity']]);
+    $item->increment(['quantity' => $validated['quantity']]);
 
     return response()->json(['message' => 'Updated']);
 }
@@ -98,10 +95,14 @@ public function destroy(Request $request,$product_id)
     }
     $item = CartItems::where('cart_id', $cart->id)->where('product_id', $product_id)->first();
 
-    if (!$item) {
+    if (!$item)
+    {
         return response()->json(['message' => 'Item not found'], 404);
     }
-    $item->delete();
+    if($item->quantity > 0)
+    {
+    $item->decrement();
+    }
     return response()->json(['message' => 'Removed']);
 }
 }

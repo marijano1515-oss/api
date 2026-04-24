@@ -9,7 +9,8 @@ class ProductController extends Controller
 {
     public function index()
     {
-
+        //select product_id ,count(user_id) as users from favorites group by product_id
+//
     return response()->json(Product::all());
 
     }
