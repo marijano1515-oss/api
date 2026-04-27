@@ -2,16 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Favorites;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        //select product_id ,count(user_id) as users from favorites group by product_id
-//
-    return response()->json(Product::all());
+        $products = Product::query()
+            ->when($request->input('categoryId'), function ($query) use ($request) {
+                return $query->where('category_id', $request->input('categoryId'));
+            })
+            ->when($request->input('min_price'), function ($query) use ($request) {
+                return $query->where('price', '>=',$request->input('min_price'));
+            })
+            ->when($request->input('max_price'), function ($query) use ($request) {
+                return $query->where('price', '<=',$request->input('max_price'));
+            })
+            ->withcount(['favorites','favorites as user_favorite' => function ($query) {
+                return $query->where('favorites.user_id', auth()->id());
+            }])
+            ->get();
+
+        return response()->json($products);
 
     }
     public function show($id)
@@ -98,4 +112,5 @@ class ProductController extends Controller
         return response()->json(['message' => 'Deleted']);
 
     }
+
 }

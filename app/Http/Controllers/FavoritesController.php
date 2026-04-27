@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Favorites;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class FavoritesController extends Controller
@@ -23,7 +24,7 @@ class FavoritesController extends Controller
 
     public function store(Request $request,$product_id)
     {
-        $user = auth()->user();
+        $user = User::user();
 
         // check if product exists
         $product = Product::find($product_id);
