@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use App\Models\Category;
+use App\Models\CategoryGeorgian;
+use App\Models\CategoryTranslations;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -19,12 +21,24 @@ class CategoryController extends Controller
             ], 403);
         }
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories',
+            'name_en' => 'required|string|max:255|unique:categories,name',
+            'name_ka' => 'required|string|max:255',
         ]);
         $category = Category::create([
-            'name' => $request->name
+            'name' => $request->name_en
         ]);
-        return response()->json([
+
+        $category->translations()->create([
+            'name' => $request->name_ka,
+            'locale' => 'ka',
+
+        ]);
+        $category->translations()->create([
+            'name' => $request->name_en,
+            'locale' => 'en',
+
+        ]);
+         return response()->json([
             'category' => $category,
             'message' => 'Category created'
         ]);

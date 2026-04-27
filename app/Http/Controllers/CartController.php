@@ -43,7 +43,6 @@ public function store(Request $request)
         ->first();
 
     if ($item) {
-        // update quantity
         $item->increment('quantity', $validated['quantity']);
     } else {
         CartItems::create([
