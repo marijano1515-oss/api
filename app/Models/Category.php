@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Http\Controllers\ProductController;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-#[Fillable(['name','name','locale'])]
+#[Fillable(['name','locale'])]
 
 class Category extends Model
 {

@@ -13,7 +13,6 @@ class Product extends Model
 {
     protected $fillable = ['name', 'price','category_id','user_id'];
 
-    protected $hidden = ['user_id', 'category_id'];
     public function category()
     {
 
@@ -30,5 +29,9 @@ class Product extends Model
     public function favorites()
     {
         return $this->hasMany(Favorites::class);
+    }
+    public function translations()
+    {
+        return $this->hasMany(ProductTranslations::class);
     }
 }

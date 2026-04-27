@@ -44,16 +44,25 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
+            'name_ka' => 'required|string|max:255',
             'price' => 'required|numeric',
             'category_id' => 'required|integer'
         ]);
 
         $product = Product::create([
-            'name' => $validated['name'],
-            'price' => $validated['price'],
+            'name' => $request->name_en,
+            'price' => $request->price,
             'category_id' => $request->category_id,
             'user_id' => $request->user()->id
+        ]);
+        $product->translations()->create([
+            'name' => $request->name_ka,
+            'locale' => 'ka',
+        ]);
+        $product->translations()->create([
+            'name' => $request->name_en,
+            'locale' => 'en',
         ]);
 
         return response()->json([
