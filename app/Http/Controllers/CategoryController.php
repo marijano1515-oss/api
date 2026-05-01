@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\Category;
-use App\Models\CategoryGeorgian;
 use App\Models\CategoryTranslations;
 use Illuminate\Http\Request;
 
@@ -10,7 +9,14 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return response()->json(category::all());
+        return response()->json(
+            category::query()
+                ->with(['translations' => function ($query) {
+                    $query->where('locale', app()->getLocale())
+                        ->select('id', 'category_id', 'name');
+                }])
+                ->get()
+        );
     }
 
     public function store(Request $request)
@@ -73,7 +79,11 @@ class CategoryController extends Controller
 
     public function show(Request $request,$id)
     {
-
+        return response()->json(
+            category::query()
+                ->with(['translations'])
+                ->find($id)
+        );
     }
 
     public function destroy($id)

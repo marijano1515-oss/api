@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Favorites;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::query()
+        $products = Product::query()->with('translations', function ($query) {
+            return $query->where('locale', app()->getLocale())->select(['id', 'name','product_id']);
+        })
             ->when($request->input('categoryId'), function ($query) use ($request) {
                 return $query->where('category_id', $request->input('categoryId'));
             })
@@ -51,7 +54,6 @@ class ProductController extends Controller
         ]);
 
         $product = Product::create([
-            'name' => $request->name_en,
             'price' => $request->price,
             'category_id' => $request->category_id,
             'user_id' => $request->user()->id
@@ -81,7 +83,6 @@ class ProductController extends Controller
             return response()->json(['message' => 'Not found'], 404);
         }
 
-        // 🔒 ownership check
         if ($product->user_id !== $user->id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
@@ -111,7 +112,6 @@ class ProductController extends Controller
             return response()->json(['message' => 'Not found'], 404);
         }
 
-        // 🔒 ownership check
         if ($product->user_id !== $user->id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
