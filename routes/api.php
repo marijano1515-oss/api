@@ -43,10 +43,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/favorites/{product}', [FavoritesController::class, 'store']);
     Route::delete('/favorites/{favorite}', [FavoritesController::class, 'destroy']);
 
-    Route::get('/cart{id}', [FavoritesController::class, 'index']);
-    Route::post('/cart/{id}', [CartController::class, 'store']);
-    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
-    Route::put('/cart/{id}', [CartController::class, 'update`']);
+    Route::get('/cart', [FavoritesController::class, 'index']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::delete('/cart/{item}', [CartController::class, 'destroy']);
+    Route::put('/cart/{item}', [CartController::class, 'update']);
 
     Route::post('/reviews', [ReviewController::class, 'store']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);

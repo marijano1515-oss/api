@@ -8,18 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Cart extends Model
 {
-    protected $fillable = ['user_id'];
-
-    public function items()
+protected $fillable = ['user_id', 'product_id'];
+    public function item()
     {
         return $this->hasMany(CartItems::class);
     }
-    public function user(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
     public function product(): BelongsToMany
 {
         return $this->belongsToMany(Product::class,'cart_items')->withPivot('quantity');
 }
+
 }
