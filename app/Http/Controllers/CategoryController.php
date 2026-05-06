@@ -11,10 +11,10 @@ class CategoryController extends Controller
     {
         return response()->json(
             category::query()
-                ->with(['translations' => function ($query) {
-                    $query->where('locale', app()->getLocale())
-                        ->select('id', 'category_id', 'name');
-                }])
+                ->with('translations', function ($query) {
+                    return $query->where('locale', app()->getLocale())
+                        ->select('id','category_id','name');
+                })
                 ->get()
         );
     }
@@ -27,11 +27,10 @@ class CategoryController extends Controller
             ], 403);
         }
         $request->validate([
-            'name_en' => 'required|string|max:255|unique:categories,name',
-            'name_ka' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255|unique:category_translations,name',
+            'name_ka' => 'required|string|max:255|unique:category_translations,name',
         ]);
         $category = Category::create([
-            'name' => $request->name_en
         ]);
 
         $category->translations()->create([
@@ -50,7 +49,7 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function update(Request $request,$id)
+    public function update(Request $request, Category $category)
     {
         $user = auth()->user();
 
@@ -58,17 +57,28 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $category = Category::find($id);
-
-        if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
-        }
-
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $id,
+            'name_en' => 'required|string|max:255',
+            'name_ka' => 'required|string|max:255',
         ]);
 
-        $category->update($validated);
+        $category->translations()->updateOrInsert(
+            [
+                'locale' => 'ka',
+                'category_id' => $category->id
+            ],
+            [
+                'name' => request('name_ka')
+            ]
+        );
+
+        $category->translations()->updateOrInsert(
+            [
+                'locale' => 'en',
+                'category_id' => $category->id],
+            [
+                'name' => request('name_en')
+            ]);
 
         return response()->json([
             'category' => $category,
@@ -86,7 +96,7 @@ class CategoryController extends Controller
         );
     }
 
-    public function destroy($id)
+    public function destroy(Category $category)
     {
         $user = auth()->user();
 
@@ -94,8 +104,7 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $category = Category::findOrFail($id);
-        $category->delete();
+        $category->translations()->delete();
 
         return response()->json(['message' => 'Deleted successfully']);
 

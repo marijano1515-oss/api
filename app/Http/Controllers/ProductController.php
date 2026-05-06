@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Favorites;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 
 class ProductController extends Controller
 {
@@ -31,6 +29,7 @@ class ProductController extends Controller
         return response()->json($products);
 
     }
+
     public function show($id)
     {
         $product = Product::with('category')->find($id);
@@ -42,8 +41,8 @@ class ProductController extends Controller
         }
 
         return response()->json($product);
-
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -56,8 +55,9 @@ class ProductController extends Controller
         $product = Product::create([
             'price' => $request->price,
             'category_id' => $request->category_id,
-            'user_id' => $request->user()->id
+            'user_id' => auth()->id()
         ]);
+
         $product->translations()->create([
             'name' => $request->name_ka,
             'locale' => 'ka',
@@ -73,40 +73,47 @@ class ProductController extends Controller
         ], 201);
 
     }
-    public function update(Request $request ,$id)
+    public function update(Request $request, Product $product)
     {
         $user = auth()->user();
 
-        $product = Product::find($id);
-
-        if (!$product) {
-            return response()->json(['message' => 'Not found'], 404);
-        }
-
-        if ($product->user_id !== $user->id) {
+        if ($product->user_id != $user->id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'price' => 'sometimes|numeric',
-            'category_id' => 'sometimes|exists:categories,id',
+        $product->update([
+            'price' => $request->input('price')
         ]);
 
-        $product->update($validated);
+        $product->translations()->updateOrInsert(
+            [
+                'locale' => 'ka',
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => request('name_ka'),
+            ]
+        );
 
-        return response()->json($product);
+        $product->translations()->updateOrInsert(
+            [
+                'locale' => 'en',
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => request('name_en'),
+            ]
+        );
+
+        return response()->json([
+            'message' => 'Product updated successfully',
+            'product' => $product
+        ]);
 
     }
-    public function destroy(Request $request, $id)
+    public function destroy(Product $product)
     {
         $user = auth()->user();
-
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        $product = Product::find($id);
 
         if (!$product) {
             return response()->json(['message' => 'Not found'], 404);
@@ -116,7 +123,7 @@ class ProductController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        $product->delete();
+        $product->translations()->delete();
 
         return response()->json(['message' => 'Deleted']);
 
