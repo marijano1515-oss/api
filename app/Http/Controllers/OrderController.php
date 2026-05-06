@@ -13,16 +13,14 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request, )
     {
-        $user = Auth::user();
+        $user=auth()->user();
 
-        // get user's cart with items + products
         $cart = Cart::with('items.product')
             ->where('user_id', $user->id)
             ->first();
 
-        // check if cart exists or is empty
         if (!$cart || $cart->items->isEmpty()) {
             return response()->json([
                 'message' => 'Cart is empty'
@@ -33,12 +31,10 @@ class OrderController extends Controller
         {
             $total += $item->product->price * $item->quantity;
         }
-        // insert data into orders table [user_id, total, status]
 
         $order = Orders::create(['user_id'=> $user->id,
             'total'=>$total,
             'status'=>'pending' ]);
-        // get order id and create order_items from cart items
         foreach($order->items as $item)
         {
             OrderItems::create([
@@ -48,59 +44,65 @@ class OrderController extends Controller
                 'price'=>$item->product->price
             ]);
         }
-        // delete cart and cart items
         if($order->status == 'pending')
         {
             $cart->items()->delete();
         }
-        // return response
         return response()->json(['order created succesfully',
             'order' => $order,
             'items' => $order->items
             ]);
     }
 
+    public function update(Request $request, Orders $order)
+    {
+        $user=auth()->user();
 
-    public function update(Request $request, $id)
-{
-//   $user = auth()->user();
-//
-//    $order = Orders::where('user_id' == $user->id,
-//    'order_id' == $order->id
-//    );
-//    if(!$order){
-//        return response()->json(['404']);
-//    }
-//    if('status' == 'pending')
-//    {
-//        $order->update();
-//    }
-//    $validated = $request->validate([
-//        'status' => 'required|in:pending,received,on road,canceled',
-//    ]);
+        if($order->user_id == $user->id){
+
+            return response()->json([
+            'message' => 'You cannot edit your own orders'
+            ]);
+
+        }
+        if($order->status == 'pending')
+        {
+            $order->update([
+                'status'=>'completed'
+            ]);
+        }
+
+        return response()->json(["message"=>'order updated succesfully',]);
 
 
-}
+    }
 
     public function index()
     {
-        return response()->json(Orders::with("items.quantity")->orderby('created_at','desc')->get());
+        return response()->json(Orders::with("items.quantity")
+            ->orderby('created_at','desc')
+            ->get());
     }
 
     public function show($id)
     {
-        return response()->json(Orders::with('products')->findOrFail($id));
-    }
-    public function destroy($id)
-    {
-        $order = Orders::findOrFail($id);
 
-        if ($order->status != 'pending') {
-            return response()->json([
-                'error' => 'Cannot delete an order'
-            ], 403);
+        return response()->json(Orders::with('products')
+            ->findOrFail($id));
+
+    }
+
+    public function destroy(Orders $order)
+    {
+        $user = auth()->user();
+        if(!$order){
+            return response()->json(['not found']);
         }
-        else $order->delete();
+        if($user->id != $order->user_id){
+            return response()->json(['not allowed']);
+        }
+
+        $order->delete();
 
         return response()->json([
             'message' => 'Order  has been deleted successfully'
