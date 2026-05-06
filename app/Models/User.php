@@ -31,10 +31,10 @@ class User extends Authenticatable
     }
     public function favorites()
     {
-        return $this->hasMany(Product::class, 'favorites');
+        return $this->hasMany(Favorites::class,);
     }
     public function reviews()
     {
-        return $this->hasMany(Product::class, 'reviews');
+        return $this->hasMany(Review::class);
     }
 }
