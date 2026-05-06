@@ -9,17 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
-    public function index()
+    public function index(Review $review)
     {   $user = auth()->user();
-        $product_id = request('product_id');
-        $reviews = Review::with('user_id')->where('product_id', $product_id)->get();
-        return response()->json([
-            'user_id' => $user->id,
-                'product_id' => $product_id,
-                'description' => $reviews->description,
-
-            ]
-        );
+        if($user->id != $review->user_id){
+            return response()->json(['message' => 'Unauthorized']);
+        }
+        return response()->json($review);
     }
     public function store()
     {
@@ -48,13 +43,17 @@ class ReviewController extends Controller
         ]);
 
         $review = Review::where(['user_id'=>$user->id])->update(['description' => $validated['description'], 'rating' => $validated['rating']]);
-        return response()->json(['review updated' => $review]);
+        return response()->json([ $review]);
     }
-    public function destroy()
+    public function destroy(Review $review)
     {
         $user = auth()->user();
 
-        $review = Review::where(['user_id' => $user->id])->delete();
+        if($user->id != $review->user_id){
+            return response()->json(['message' => 'Unauthorized']);
+        }
+        $review->delete();
+
         return response()->json(['review deleted']);
     }
 
