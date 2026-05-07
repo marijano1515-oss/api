@@ -10,11 +10,8 @@ use Illuminate\Support\Facades\Auth;
 class ReviewController extends Controller
 {
     public function index(Review $review)
-    {   $user = auth()->user();
-        if($user->id != $review->user_id){
-            return response()->json(['message' => 'Unauthorized']);
-        }
-        return response()->json($review);
+    {
+        return response()->json(Review::all());
     }
     public function store()
     {

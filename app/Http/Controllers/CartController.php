@@ -11,14 +11,11 @@ class CartController extends Controller
     public function index()
     {
         $user = auth()->user();
-
-        $cart = Cart::firstOrCreate([
-            'user_id'=> $user->id
-        ]);
-
-        return response()->json([
-            $cart->load('items.product')
-        ]);
+        $items = CartItems::where('cart', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+            ->with('product')->get();
+        return response()->json($items);
     }
 
     public function store(Request $request)
@@ -80,4 +77,5 @@ class CartController extends Controller
 
         return response()->json(['message' => 'Removed']);
     }
+
 }

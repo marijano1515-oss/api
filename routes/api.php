@@ -43,14 +43,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/favorites/{product}', [FavoritesController::class, 'store']);
     Route::delete('/favorites/{favorite}', [FavoritesController::class, 'destroy']);
 
-    Route::get('/cart', [FavoritesController::class, 'index']);
+    Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart', [CartController::class, 'store']);
     Route::delete('/cart/{item}', [CartController::class, 'destroy']);
     Route::put('/cart/{item}', [CartController::class, 'update']);
 
     Route::post('/reviews', [ReviewController::class, 'store']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
-    Route::get('/reviews/{id}', [ReviewController::class, 'index']);
+    Route::get('/reviews', [ReviewController::class, 'index']);
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
 
 });
