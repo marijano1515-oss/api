@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/{item}', [CartController::class, 'update']);
 
     Route::post('/reviews', [ReviewController::class, 'store']);
-    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
     Route::get('/reviews', [ReviewController::class, 'index']);
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
 

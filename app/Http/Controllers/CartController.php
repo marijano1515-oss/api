@@ -11,7 +11,7 @@ class CartController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $items = CartItems::where('cart', function ($query) use ($user) {
+        $items = CartItems::wherehas('cart', function ($query) use ($user) {
             $query->where('user_id', $user->id);
         })
             ->with('product')->get();

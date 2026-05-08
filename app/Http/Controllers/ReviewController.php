@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
-    public function index(Review $review)
+    public function index()
     {
         return response()->json(Review::all());
     }
@@ -31,27 +31,37 @@ class ReviewController extends Controller
         ]);
         return response()->json(['review posted' => $review]);
     }
-    public function update()
+    public function update(Review $review)
     {
         $user = auth()->user();
+
         $validated = request()->validate([
             'description' => 'required|string|max:255',
             'rating' => 'required|integer|min:1|max:10'
         ]);
 
-        $review = Review::where(['user_id'=>$user->id])->update(['description' => $validated['description'], 'rating' => $validated['rating']]);
-        return response()->json([ $review]);
+        $review->where(['user_id'=>$user->id])
+            ->update(['description' => $validated['description'], 'rating' => $validated['rating']]);
+
+        return response()->json([
+            'message' => 'Review updated',
+            'review' => request(["description", "rating"])
+        ]);
     }
     public function destroy(Review $review)
     {
         $user = auth()->user();
 
-        if($user->id != $review->user_id){
-            return response()->json(['message' => 'Unauthorized']);
-        }
-        $review->delete();
+        $review->where(['id' => $review->id])->where(['user_id'=>$user->id])
+            ->delete();
 
-        return response()->json(['review deleted']);
+//        $review->where('id', $review->id)
+//            ->where('user_id', $user->id)
+//            ->delete();
+
+        return response()->json([
+            "message"=>'review deleted'
+        ]);
     }
 
 }
