@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Cart extends Model
 {
 protected $fillable = ['user_id', 'product_id'];
-    public function item()
+    public function items()
     {
         return $this->hasMany(CartItems::class);
     }

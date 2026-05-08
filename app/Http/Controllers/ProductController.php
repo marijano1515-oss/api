@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CategoryTranslations;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -9,9 +10,12 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::query()->with('translations', function ($query) {
-            return $query->where('locale', app()->getLocale())->select(['id', 'name','product_id']);
-        })
+        $products = Product::query()->whereHas('translations', function ($query) {
+            return $query->where('locale', app()->getLocale());
+        })->with(['translations' => function ($query) {
+
+            $query->where('locale', app()->getLocale())->select('id', 'product_id', 'name');
+        }])
             ->when($request->input('categoryId'), function ($query) use ($request) {
                 return $query->where('category_id', $request->input('categoryId'));
             })
@@ -26,7 +30,9 @@ class ProductController extends Controller
             }])
             ->get();
 
-        return response()->json($products);
+        return response()->json([
+            'products' => $products,
+        ]);
 
     }
 

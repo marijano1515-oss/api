@@ -10,12 +10,20 @@ class CategoryController extends Controller
     public function index()
     {
         return response()->json(
-            category::query()
-                ->with('translations', function ($query) {
-                    return $query->where('locale', app()->getLocale())
-                        ->select('id','category_id','name');
-                })
-                ->get()
+           category::query()
+//                ->with('translations', function ($query) {
+//                    return $query->where('locale', app()->getLocale())
+//                        ->select('id','category_id','name');
+//                })
+//                ->get()
+            ->whereHas('translations', function ($query) {
+                $query->where('locale', app()->getLocale());
+            })
+            ->with(['translations' => function ($query) {
+                $query->where('locale', app()->getLocale())
+                    ->select('id', 'category_id', 'name');
+            }])
+            ->get()
         );
     }
 

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    public function store(Request $request, )
+    public function store()
     {
         $user=auth()->user();
 
@@ -35,7 +35,7 @@ class OrderController extends Controller
         $order = Orders::create(['user_id'=> $user->id,
             'total'=>$total,
             'status'=>'pending' ]);
-        foreach($order->items as $item)
+        foreach($cart->items as $item)
         {
             OrderItems::create([
                 'order_id'=>$order->id,
@@ -48,7 +48,8 @@ class OrderController extends Controller
         {
             $cart->items()->delete();
         }
-        return response()->json(['order created succesfully',
+        return response()->json([
+            'message'=>'order created succesfully',
             'order' => $order,
             'items' => $order->items
             ]);

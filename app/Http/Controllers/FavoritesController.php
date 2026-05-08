@@ -9,17 +9,13 @@ use Illuminate\Http\Request;
 
 class FavoritesController extends Controller
 {
-    public function index(Favorites $favorites)
+    public function index()
     {
         $user = auth()->user();
 
-        if ($user->id != $favorites->user_id) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
+        $favorites =Favorites::where('user_id',$user->id)->with('products')->get();
 
-        return response()->json(
-            $favorites = $user->favorites()->get()
-        );
+        return response()->json($favorites);
     }
 
     public function store(Request $request,Product $product)
@@ -30,7 +26,7 @@ class FavoritesController extends Controller
             return response()->json(['message' => 'Product not found'], 404);
         }
 
-        Favorites::create([
+        Favorites::FirstOrCreate([
             'user_id' => $user->id,
             'product_id' => $product->id
         ]);
